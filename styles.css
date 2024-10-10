@@ -1,0 +1,72 @@
+body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="url"] {
+            width: 70%;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background: #218838;
+        }
+        .recipe-list {
+            margin-top: 20px;
+        }
+        .recipe-list a {
+            display: block; /* Makes the link an inline block */
+            padding: 10px 20px; /* Button padding */
+            margin: 5px 0; /* Margin for spacing */
+            background: #007bff; /* Button background color */
+            color: white; /* Button text color */
+            text-decoration: none; /* Remove underline from link */
+            border-radius: 5px; /* Round corners */
+            transition: background-color 0.3s; /* Smooth background transition */
+        }
+        .recipe-list a:hover {
+            background: #0056b3; /* Darker background on hover */
+        }
+        .recipe-json {
+            white-space: pre-wrap;
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .recipe-details {
+            margin-top: 20px;
+        }
+        .recipe-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .recipe-image {
+            max-width: 100%; /* Ensure the image is responsive */
+            height: auto; /* Maintain aspect ratio */
+            margin-bottom: 10px;
+        }

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Scraper</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css"> <!-- Link to external CSS file -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="url"] {
+            width: 70%;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background: #218838;
+        }
+        .recipe-list {
+            margin-top: 20px;
+        }
+        .recipe-list a {
+            display: block; /* Makes the link a block element for vertical stacking */
+            padding: 10px 20px; /* Button padding */
+            margin: 5px 0; /* Margin for spacing */
+            background: #007bff; /* Button background color */
+            color: white; /* Button text color */
+            text-decoration: none; /* Remove underline from link */
+            border-radius: 5px; /* Round corners */
+            transition: background-color 0.3s; /* Smooth background transition */
+        }
+        .recipe-list a:hover {
+            background: #0056b3; /* Darker background on hover */
+        }
+	.delete-button {
+    display: inline-block; /* Makes the button inline-block */
+    padding: 10px 20px; /* Padding for spacing */
+    background: #dc3545; /* Bootstrap's danger color */
+    color: white; /* Button text color */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Round corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth background transition */
+}
+
+.delete-button:hover {
+    background: #c82333; /* Darker shade on hover */
+}
+        .delete-button a:hover {
+            background: #0056b3; /* Darker background on hover */
+        }
+        .recipe-json {
+            white-space: pre-wrap;
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .recipe-details {
+            margin-top: 20px;
+        }
+        .recipe-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .recipe-image {
+            max-width: 25%; /* Ensure the image is responsive */
+            height: auto; /* Maintain aspect ratio */
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Recipe Scraper</h1>
+
+        <form id="scrape-form">
+            <input type="url" id="recipe-url" placeholder="Enter recipe URL" required>
+            <input type="submit" value="Scrape Recipe">
+        </form>
+
+        <div class="recipe-list" id="recipe-list">
+            <h2>Scraped Recipes</h2>
+            <!-- Recipe links will be dynamically added here -->
+        </div>
+
+        <div>
+            <a href="/submit_recipe_form" style="display:inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">Submit a New Recipe</a>
+        </div>
+    </div>
+
+    <div id="recipe-details" class="recipe-details" style="display:none;"></div>
+
+    <script>
+        document.getElementById('scrape-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const url = document.getElementById('recipe-url').value;
+
+            fetch('/scrape', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    alert("Recipe scraped successfully!");
+                    loadRecipeLinks(); // Reload recipe links
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        function loadRecipeLinks() {
+            fetch('/recipes') // Assuming this route returns a list of recipes
+            .then(response => response.json())
+            .then(recipes => {
+                const recipeList = document.getElementById('recipe-list');
+                recipeList.innerHTML = ''; // Clear current list
+
+                recipes.forEach(recipe => {
+                    const link = document.createElement('a');
+                    link.href = '#'; // Prevent navigation away from the page
+                    link.textContent = recipe.title; // Set the link text to the recipe title
+                    link.onclick = (e) => {
+                        e.preventDefault(); // Prevent default link behavior
+                        displayRecipeDetails(recipe); // Display recipe details on click
+                    };
+                    recipeList.appendChild(link); // Add the link to the recipe list
+                });
+            });
+        }
+
+function deleteRecipe(recipeTitle) {
+    if (confirm(`Are you sure you want to delete "${recipeTitle}"?`)) {
+        fetch(`/delete_recipe/${encodeURIComponent(recipeTitle)}`, {
+            method: 'POST',
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Recipe deleted successfully!');
+                // Optionally, refresh the recipe list or clear details
+                loadRecipeLinks(); // Reload recipe links
+                document.getElementById('recipe-details').style.display = 'none'; // Hide details
+            } else {
+                return response.json().then(data => {
+                    throw new Error(data.error || 'Failed to delete recipe.');
+                });
+            }
+        })
+        .catch(error => {
+            alert(`Error: ${error.message}`);
+        });
+    }
+}
+
+        function displayRecipeDetails(recipe) {
+            const detailsDiv = document.getElementById('recipe-details');
+            detailsDiv.style.display = 'block';
+            detailsDiv.innerHTML = `
+                <div class="recipe-title">${recipe.title}</div>
+                ${recipe.image ? `<img src="${recipe.image}" class="recipe-image" alt="${recipe.title}">` : ''}
+                <br>
+		<strong>Ingredients:</strong>
+                <ul>
+                    ${recipe.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')}
+                </ul>
+                <strong>Instructions:</strong>
+                <p>${recipe.instructions.join('. ')}</p>
+                <strong>Total Time:</strong> ${recipe.total_time} minutes<br>
+                <strong>Yields:</strong> ${recipe.yields}
+		<br>
+		<button class="delete-button" onclick="deleteRecipe('${recipe.title}')">Delete Recipe</button>
+            `;
+        }
+
+        // Initial load of recipes on page load
+        window.onload = loadRecipeLinks;
+    </script>
+
+</body>
+</html>

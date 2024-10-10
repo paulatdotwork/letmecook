@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Recipe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #218838;
+        }
+        .success-message,
+        .error-message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Submit a New Recipe</h1>
+        <form id="submit-recipe-form">
+            <input type="text" id="title" placeholder="Recipe Title" required>
+            <textarea id="ingredients" placeholder="Ingredients (comma separated)" required></textarea>
+            <textarea id="instructions" placeholder="Instructions" required></textarea>
+            <input type="text" id="total_time" placeholder="Total Time (in minutes)" required>
+            <input type="text" id="yields" placeholder="Yields" required>
+            <input type="text" id="image" placeholder="Image URL (optional)">
+            <button type="submit">Submit Recipe</button>
+        </form>
+
+        <div id="response-message"></div>
+    </div>
+
+    <script>
+        document.getElementById('submit-recipe-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const recipeData = {
+                title: document.getElementById('title').value,
+                ingredients: document.getElementById('ingredients').value.split(',').map(ingredient => ingredient.trim()),
+                instructions: document.getElementById('instructions').value,
+                total_time: document.getElementById('total_time').value,
+                yields: document.getElementById('yields').value,
+                image: document.getElementById('image').value
+            };
+
+            fetch('/submit_recipe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(recipeData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const responseMessage = document.getElementById('response-message');
+                responseMessage.innerHTML = ''; // Clear previous message
+                
+                if (data.error) {
+                    responseMessage.innerHTML = `<div class="error-message">${data.error}</div>`;
+                } else {
+                    responseMessage.innerHTML = `<div class="success-message">${data.message}</div>`;
+                    // Optionally clear the form or redirect
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scraped Recipes</title>
+</head>
+<body>
+    <h1>Scraped Recipes</h1>
+    <ul>
+        {% for recipe in recipes %}
+            <li>
+                <a href="{{ url_for('view_recipe', filename=recipe['title'].replace(' ', '_') + '.json') }}">
+                    {{ recipe['title'] }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
